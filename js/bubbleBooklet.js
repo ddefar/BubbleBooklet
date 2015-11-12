@@ -12,33 +12,32 @@ bubbleBooklet.prototype.announce = function() {
 };
 
 bubbleBooklet.prototype.makeBubbles = function(bucket) {
-	var me  = this;
-	if (bucket.firstChild) {
-		[].forEach.call(bucket.children,function(child) {
-			me.makeBubbles(child);
-		});
-	} else {
-		me.blowBubble(bucket);
-	}
+  var me  = this;
+  if (bucket.children && bucket.children.length > 0) {
+    [].forEach.call(bucket.children,function(child) {
+      me.makeBubbles(child);
+    });
+  } else {
+    me.blowBubble(bucket);
+  }
   //za sad wrappaj svaku rijec i svaki <img> element u span (vidi initBookletContent)
   //opcenitije: rekurzija po DOM elementima dok ne dodjes do neceg sto ne sadrzi child elemente - ako
   //sadrzi text, wrappaj svaku rijec u span, ako ne sadrzi tekst (to je slika or sth) - wrappaj njega direktno
 };
 
 bubbleBooklet.prototype.blowBubble = function(bucket) {
-	console.debug('blowing bubble for: ', bucket.tagName);
+  console.debug('blowing bubble for: ', bucket.tagName);
   if(bucket.tagName=="IMG") {
-  	var bubble = document.createElement('span');
-  	var bubble_inner = bucket.cloneNode();
-  	//bubble.appendChild(bucket.cloneNode());
-  	bubble.appendChild(bubble_inner);
-  	console.debug(bucket.cloneNode());
-  	console.debug(bubble);
-  	console.debug(bucket.parentElement);
-  	
-  	bucket.parentNode.replaceChild(bubble,bucket)
+    var bubble = document.createElement('span');
+    var bubble_inner = bucket.cloneNode();
+
+    bubble.appendChild(bubble_inner);
+    parent = bucket.parentNode;
+    parent.replaceChild(bubble,bucket);
+
   } else {
-  	bucket.html().replace(/(\S+\s*)/g, "<span>$1</span>");
+    text = bucket.innerHTML.replace(/(\S+\s*)/g, "<span>$1</span>");
+    bucket.innerHTML = text;
   }
 };
 
