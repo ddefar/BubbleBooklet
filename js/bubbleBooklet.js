@@ -21,8 +21,6 @@ bubbleBooklet.prototype.makeBubbles = function(bucket) {
     me.blowBubble(bucket);
   }
   //za sad wrappaj svaku rijec i svaki <img> element u span (vidi initBookletContent)
-  //opcenitije: rekurzija po DOM elementima dok ne dodjes do neceg sto ne sadrzi child elemente - ako
-  //sadrzi text, wrappaj svaku rijec u span, ako ne sadrzi tekst (to je slika or sth) - wrappaj njega direktno
 };
 
 bubbleBooklet.prototype.blowBubble = function(bucket) {
@@ -46,11 +44,13 @@ bubbleBooklet.prototype.measureBubble = function() {
 };
 
 bubbleBooklet.prototype.bubbleUp = function(bubble) {
-  //gurni bubble jedno mjesto "prema gore" (smanji index za 1)
+  var neighbour = bubble.previousSibling;
+  this.swapElements(neighbour, bubble);
 };
 
 bubbleBooklet.prototype.bubbleDown = function(bubble) {
-  //gurni bubble jedno mjesto "prema dolje" (smanji index za 1)
+  var neighbour = bubble.nextSibling;
+  this.swapElements(bubble, neighbour);
 };
 
 //BACKLOG
@@ -62,3 +62,9 @@ bubbleBooklet.prototype.upOrDown = function(bubble) {
 bubbleBooklet.prototype.alignBubbles = function(bubble) {
   //poslozi layout po stranicama (vidi dosadasnji throttle)
 };
+
+bubbleBooklet.prototype.swapElements = function(obj1, obj2) {
+    obj2.nextSibling === obj1
+    ? obj1.parentNode.insertBefore(obj2, obj1.nextSibling)
+    : obj1.parentNode.insertBefore(obj2, obj1); 
+}

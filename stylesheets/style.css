@@ -1,0 +1,15 @@
+#target {
+	width: 360px;
+	margin: 0 auto;
+	font-size: 18px;
+	line-height: 23px;
+}
+img {
+	max-width: 358px;
+}
+img.bubble-image {
+	display: block;
+}
+.bubble {
+	border: 1px solid black;
+}
