@@ -1,10 +1,13 @@
+var bubbleWrapper;
+
 var bubbleBooklet = function (name,config) {
   this.init(name);
 };
 
 bubbleBooklet.prototype.init = function(name) {
   this.name = name;
-  this.makeBubbles(document.getElementById("target"));
+  bubbleWrapper = document.getElementById("target");
+  this.makeBubbles(bubbleWrapper);
 };
 
 bubbleBooklet.prototype.announce = function() {
@@ -35,15 +38,37 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
     parent = bucket.parentNode;
     parent.replaceChild(bubble,bucket);
 
+    height = this.measureImageBubble(bubble);
+    console.log(height);
+
   } else {
     text = bucket.innerHTML.replace(/(\S+\s*)/g, "<span>$1</span>");
     bucket.innerHTML = text;
+
+    height = this.measureTextBubble(bucket);
+    //console.log(height);
   }
 };
 
-bubbleBooklet.prototype.measureBubble = function() {
-  //izracunaj visinu bubblea (onog sto je wrapano u span) izrazeno u kolicini lineheighova
-};
+// bubbleBooklet.prototype.measureImageBubble = function(bubble) {
+//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako
+//   var image = $(bubble).children()[0];
+
+//   var height = $(image).outerHeight(true);
+
+//   return height; //return bubble height
+// };
+
+// bubbleBooklet.prototype.measureTextBubble = function(bucket) {
+//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako
+//   bubble = $(bucket).children()[0];
+
+//   console.log(bubble);
+
+//   var height = $(bubble).outerHeight(true);
+
+//   return height; //return bubble height
+// };
 
 bubbleBooklet.prototype.bubbleUp = function(bubble) {
   //gurni bubble jedno mjesto "prema gore" (smanji index za 1)
