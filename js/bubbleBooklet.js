@@ -5,7 +5,7 @@ var bubbleBooklet = function (name,config) {
 
 bubbleBooklet.prototype.init = function(name) {
   this.name = name;
-  this.bubbleWrapper = document.getElementById("target");
+  this.bubbleWrapper = document.getElementById("bbooklet");
   this.bubbleWrapperHeight = $(this.bubbleWrapper).height();
   this.makeBubbles(this.bubbleWrapper);
   this.alignBubbles();
@@ -74,14 +74,14 @@ bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
 };
 
 bubbleBooklet.prototype.bubbleUp = function(bubble) {
-  var neighbour = $(bubble).previous('span')[0];
-  console.debug(neighbour);
+  var neighbour = $(bubble).prev('span')[0];
+  console.debug('bubbleUp ',neighbour);
   this.swapElements(neighbour, bubble);
 };
 
 bubbleBooklet.prototype.bubbleDown = function(bubble) {
   var neighbour = $(bubble).next('span')[0];
-  console.debug(neighbour);
+  console.debug('bubbleDown', neighbour);
   this.swapElements(bubble, neighbour);
 };
 
