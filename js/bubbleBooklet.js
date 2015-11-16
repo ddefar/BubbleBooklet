@@ -5,10 +5,10 @@ var bubbleBooklet = function (name,config) {
 
 bubbleBooklet.prototype.init = function(name) {
   this.name = name;
-  this.bubbleWrapper = document.getElementById("bbooklet");
+  this.bubbleWrapper = document.getElementById("booklet-inner");
   this.bubbleWrapperHeight = $(this.bubbleWrapper).height();
   this.makeBubbles(this.bubbleWrapper);
-  this.alignBubbles();
+  //this.alignBubbles();
 };
 
 bubbleBooklet.prototype.announce = function() {

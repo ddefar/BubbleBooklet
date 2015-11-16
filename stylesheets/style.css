@@ -1,10 +1,20 @@
-#bbooklet {
+#booklet {
 	width: 360px;
 	margin: 0 auto;
 	font-size: 18px;
 	line-height: 23px;
-	height: 300px;
+	height: 500px;
 	overflow: hidden;
+	position: relative;
+}
+#booklet-inner {
+	position: absolute;
+	top: 35px;
+}
+#nav {
+	margin: 0 auto;
+	width: 360px;
+	padding: 10px 0;
 }
 img {
 	max-width: 358px;
