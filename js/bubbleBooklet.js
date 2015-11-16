@@ -1,4 +1,3 @@
-var bubbleWrapper;
 
 var bubbleBooklet = function (name,config) {
   this.init(name);
@@ -6,8 +5,10 @@ var bubbleBooklet = function (name,config) {
 
 bubbleBooklet.prototype.init = function(name) {
   this.name = name;
-  bubbleWrapper = document.getElementById("target");
-  this.makeBubbles(bubbleWrapper);
+  this.bubbleWrapper = document.getElementById("target");
+  this.bubbleWrapperHeight = $(this.bubbleWrapper).height();
+  this.makeBubbles(this.bubbleWrapper);
+  this.alignBubbles();
 };
 
 bubbleBooklet.prototype.announce = function() {
@@ -24,8 +25,6 @@ bubbleBooklet.prototype.makeBubbles = function(bucket) {
     me.blowBubble(bucket);
   }
   //za sad wrappaj svaku rijec i svaki <img> element u span (vidi initBookletContent)
-  //opcenitije: rekurzija po DOM elementima dok ne dodjes do neceg sto ne sadrzi child elemente - ako
-  //sadrzi text, wrappaj svaku rijec u span, ako ne sadrzi tekst (to je slika or sth) - wrappaj njega direktno
 };
 
 bubbleBooklet.prototype.blowBubble = function(bucket) {
@@ -38,20 +37,14 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
     parent = bucket.parentNode;
     parent.replaceChild(bubble,bucket);
 
-    height = this.measureImageBubble(bubble);
-    console.log(height);
-
   } else {
     text = bucket.innerHTML.replace(/(\S+\s*)/g, "<span>$1</span>");
     bucket.innerHTML = text;
-
-    height = this.measureTextBubble(bucket);
-    //console.log(height);
   }
 };
 
 // bubbleBooklet.prototype.measureImageBubble = function(bubble) {
-//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako
+//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako sporo
 //   var image = $(bubble).children()[0];
 
 //   var height = $(image).outerHeight(true);
@@ -60,7 +53,7 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
 // };
 
 // bubbleBooklet.prototype.measureTextBubble = function(bucket) {
-//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako
+//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako sporo
 //   bubble = $(bucket).children()[0];
 
 //   console.log(bubble);
@@ -70,20 +63,76 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
 //   return height; //return bubble height
 // };
 
+bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
+
+  var offsetTop = $(bubble).offset().top - $(this.bubbleWrapper).offset().top
+  if(offsetTop > this.bubbleWrapperHeight && offsetTop < 500)
+  {
+    var heightDifference = offsetTop - this.bubbleWrapperHeight;
+    this.upOrDown(bubble, heightDifference);
+  }
+};
+
 bubbleBooklet.prototype.bubbleUp = function(bubble) {
-  //gurni bubble jedno mjesto "prema gore" (smanji index za 1)
+  var neighbour = $(bubble).previous('span')[0];
+  console.debug(neighbour);
+  this.swapElements(neighbour, bubble);
 };
 
 bubbleBooklet.prototype.bubbleDown = function(bubble) {
-  //gurni bubble jedno mjesto "prema dolje" (smanji index za 1)
+  var neighbour = $(bubble).next('span')[0];
+  console.debug(neighbour);
+  this.swapElements(bubble, neighbour);
 };
 
 //BACKLOG
 
-bubbleBooklet.prototype.upOrDown = function(bubble) {
+bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference) {
   //odluci gura li se bubble Up ili Down
+  console.log("height:" + bubble + ":" + $(bubble).outerHeight(true));
+  if(heightDifference < $(bubble).outerHeight(true))
+  {
+      this.bubbleUp(bubble);
+  }
+  else
+  {
+      this.bubbleDown(bubble);
+  }
 };
 
-bubbleBooklet.prototype.alignBubbles = function(bubble) {
+bubbleBooklet.prototype.alignBubbles = function() {
   //poslozi layout po stranicama (vidi dosadasnji throttle)
+  var me = this;
+  ($(this.bubbleWrapper).find('span')).each(function(index, bubble)
+  {
+      me.measureBubbleTopOffset(bubble);
+  });
 };
+
+bubbleBooklet.prototype.swapElements = function(obj1, obj2) {
+    console.debug("obj1", obj1);
+    console.debug("obj2", obj2);
+    obj2.nextSibling === obj1
+    ? obj1.parentNode.insertBefore(obj2, obj1.nextSibling)
+    : obj1.parentNode.insertBefore(obj2, obj1); 
+}
+
+bubbleBooklet.prototype.getNextBubbleSibling = function(bubble) {
+  var nextSibling = bubble.nextSibling;
+
+  if(!nextSibling)
+  {
+    nextSibling = $(bubble).parent().next();
+  }
+  return nextSibling;
+}
+
+bubbleBooklet.prototype.getPreviousBubbleSibling = function(bubble) {
+  var previousSibling = bubble.previousSibling;
+
+  if(!previousSibling)
+  {
+    previousSibling = $(bubble.parentNode.nextSibling).find('span');
+  }
+  return previousSibling;
+}
