@@ -28,9 +28,10 @@ bubbleBooklet.prototype.makeBubbles = function(bucket) {
 };
 
 bubbleBooklet.prototype.blowBubble = function(bucket) {
-  console.debug('blowing bubble for: ', bucket.tagName);
+  //console.debug('blowing bubble for: ', bucket.tagName);
   if(bucket.tagName=="IMG") {
     var bubble = document.createElement('span');
+    $(bubble).addClass("moving-bubble");
     var bubble_inner = bucket.cloneNode();
 
     bubble.appendChild(bubble_inner);
@@ -64,15 +65,20 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
 // };
 
 bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
-
+  //ova funkcija ne valja > uvijek pomiče gore
   var offsetTop = $(bubble).offset().top - $(this.bubbleWrapper).offset().top
-  if(offsetTop > this.bubbleWrapperHeight && offsetTop < 500)
+  // console.log($(bubble).offset().top);
+  // console.log($(this.bubbleWrapper).offset().top);
+  if(offsetTop > this.bubbleWrapperHeight && offsetTop < 550)
   {
     var heightDifference = offsetTop - this.bubbleWrapperHeight;
+    //console.log(heightDifference);
     this.upOrDown(bubble, heightDifference);
   }
+
 };
 
+<<<<<<< HEAD
 bubbleBooklet.prototype.bubbleUp = function(bubble) {
   var neighbour = $(bubble).prev('span')[0];
   console.debug('bubbleUp ',neighbour);
@@ -83,56 +89,113 @@ bubbleBooklet.prototype.bubbleDown = function(bubble) {
   var neighbour = $(bubble).next('span')[0];
   console.debug('bubbleDown', neighbour);
   this.swapElements(bubble, neighbour);
+=======
+bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
+  var neighbour = bubble.previousSibling;
+  if(neighbour)
+  {
+    this.findMovingBubblePosition(neighbour, bubbleHeight, bubble);
+  }
+  console.log("up");
+  //else moving bubble too large for screen
+  //console.debug(neighbour);
+  //this.swapElements(neighbour, bubble);
 };
+
+bubbleBooklet.prototype.bubbleDown = function(bubble, bubbleHeight) {
+  var neighbour = bubble.nextSibling;
+
+  if(neighbour)
+  {
+    this.findMovingBubblePosition(neighbour, bubbleHeight, bubble);
+  }
+  console.log("down");
+  //else image is alone on the next page -> call bubble Up?
+};
+
+bubbleBooklet.prototype.findMovingBubblePosition = function(neighbour, bubbleHeight, bubble) {
+
+  var textHeight = this.bubbleWrapperHeight - bubbleHeight;
+  var newParagraph = document.createElement('p');
+  $(newParagraph).addClass("new");
+
+  [].reverse.call($(neighbour).children('span')).each(function(index, textBubble) {
+      $(newParagraph).append(textBubble);
+
+      if($(neighbour).outerHeight(true) < textHeight)
+      {
+        return false;
+      }
+  })
+
+  this.appendMovingBubble(bubble, newParagraph);
+>>>>>>> 63b2ec6b979a0401ee48194b6ef46db5a7747e5d
+};
+
+bubbleBooklet.prototype.appendMovingBubble = function(bubble, newParagraph) {
+  $(bubble).after(newParagraph);
+}
 
 //BACKLOG
 
 bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference) {
   //odluci gura li se bubble Up ili Down
-  console.log("height:" + bubble + ":" + $(bubble).outerHeight(true));
-  if(heightDifference < $(bubble).outerHeight(true))
-  {
-      this.bubbleUp(bubble);
-  }
-  else
-  {
-      this.bubbleDown(bubble);
-  }
+  //console.log("height:" + bubble + ":" + $(bubble).outerHeight(true));
+  // if($(bubble).hasClass("moving-bubble"))//npr. img
+  // {
+    var movingBubble = $(bubble).children()[0];//wrapped in span, but its height can only be calculated from the child - like img
+    var movingBubbleHeight = $(movingBubble).outerHeight(true);
+    console.log(heightDifference);
+    if(heightDifference < movingBubbleHeight) {
+        this.bubbleUp(bubble, movingBubbleHeight);
+    }
+    else {
+        this.bubbleDown(bubble, movingBubbleHeight);
+    }
+  // }
 };
 
 bubbleBooklet.prototype.alignBubbles = function() {
   //poslozi layout po stranicama (vidi dosadasnji throttle)
   var me = this;
-  ($(this.bubbleWrapper).find('span')).each(function(index, bubble)
+  ($(this.bubbleWrapper).find('.moving-bubble')).each(function(index, bubble)
   {
       me.measureBubbleTopOffset(bubble);
   });
 };
 
 bubbleBooklet.prototype.swapElements = function(obj1, obj2) {
-    console.debug("obj1", obj1);
-    console.debug("obj2", obj2);
+    //console.debug("obj1", obj1);
+    //console.debug("obj2", obj2);
     obj2.nextSibling === obj1
     ? obj1.parentNode.insertBefore(obj2, obj1.nextSibling)
     : obj1.parentNode.insertBefore(obj2, obj1); 
 }
 
-bubbleBooklet.prototype.getNextBubbleSibling = function(bubble) {
-  var nextSibling = bubble.nextSibling;
+// bubbleBooklet.prototype.getNextBubbleSibling = function(bubble) {
+//   var nextSibling = bubble.nextSibling;
+//   if(!nextSibling)
+//   {
+//     nextSibling = $(bubble).parent().next('p').children()[0];
+//     nextSibling = $(nextSibling)[0];
 
-  if(!nextSibling)
-  {
-    nextSibling = $(bubble).parent().next();
-  }
-  return nextSibling;
-}
 
-bubbleBooklet.prototype.getPreviousBubbleSibling = function(bubble) {
-  var previousSibling = bubble.previousSibling;
+//   }
+//   return nextSibling;
+// }
 
-  if(!previousSibling)
-  {
-    previousSibling = $(bubble.parentNode.nextSibling).find('span');
-  }
-  return previousSibling;
-}
+// bubbleBooklet.prototype.getPreviousBubbleSibling = function(bubble) {
+//   var previousSibling = bubble.previousSibling;
+
+//   if(!previousSibling)
+//   {
+//     previousSiblingParent = $(bubble).parent().next('p');
+//     var length = $(previousSiblingParent).length;
+//     previousSibling = $(previousSiblingParent).children()[length-1];
+//     previousSibling = $(previousSibling)[0];
+
+//     console.log(previousSibling);
+//   }
+
+//   return previousSibling;
+// }
