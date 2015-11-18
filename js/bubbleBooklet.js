@@ -82,17 +82,24 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
 // };
 
 bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
-  //ova funkcija ne valja > uvijek pomiče gore
-  var offsetTop = $(bubble).offset().top - $(this.bubbleWrapper).offset().top
+  // console.log($(this.bubbleWrapper).offset().top);
+  // console.log($(bubble).offset().top);
+  var offsetTop = $(bubble).offset().top - $(this.bubbleWrapper).offset().top;
+  var movingBubble = $(bubble).children()[0];//wrapped in span, but its height can only be calculated from the child - like img
+  var movingBubbleHeight = $(movingBubble).outerHeight(true);
+  var bottomOfMovingWrapper = offsetTop + movingBubbleHeight;
+  // console.log(bottomOfMovingWrapper);
+
+  // console.log(bottomOfMovingWrapper);
+  // console.log(bottomOfBubbleWrapper);
   // console.log($(bubble).offset().top);
   // console.log($(this.bubbleWrapper).offset().top);
-  if(offsetTop > this.bubbleWrapperHeight && offsetTop < 550)
+  if(bottomOfMovingWrapper > this.bubbleWrapperHeight)
   {
-    var heightDifference = offsetTop - this.bubbleWrapperHeight;
-    //console.log(heightDifference);
-    this.upOrDown(bubble, heightDifference);
-  }
+    var heightDifference = bottomOfMovingWrapper - this.bubbleWrapperHeight;
 
+    this.upOrDown(bubble, heightDifference, movingBubbleHeight);
+  }
 };
 
 // bubbleBooklet.prototype.bubbleUp = function(bubble) {
@@ -120,7 +127,7 @@ bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
 
 bubbleBooklet.prototype.bubbleDown = function(bubble, bubbleHeight) {
   var neighbour = bubble.nextSibling;
-
+  console.log(neighbour);
   if(neighbour)
   {
     this.findMovingBubblePosition(neighbour, bubbleHeight, bubble);
@@ -149,25 +156,26 @@ bubbleBooklet.prototype.findMovingBubblePosition = function(neighbour, bubbleHei
 
 bubbleBooklet.prototype.appendMovingBubble = function(bubble, newParagraph) {
   $(bubble).after(newParagraph);
+  //$(bubble).removeClass('moving-bubble');
 }
 
 //BACKLOG
 
-bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference) {
+bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference, movingBubbleHeight) {
   //odluci gura li se bubble Up ili Down
   //console.log("height:" + bubble + ":" + $(bubble).outerHeight(true));
-  // if($(bubble).hasClass("moving-bubble"))//npr. img
-  // {
-    var movingBubble = $(bubble).children()[0];//wrapped in span, but its height can only be calculated from the child - like img
-    var movingBubbleHeight = $(movingBubble).outerHeight(true);
-    console.log(heightDifference);
-    if(heightDifference < movingBubbleHeight) {
-        this.bubbleUp(bubble, movingBubbleHeight);
-    }
-    else {
-        this.bubbleDown(bubble, movingBubbleHeight);
-    }
-  // }
+  // var movingBubble = $(bubble).children()[0];//wrapped in span, but its height can only be calculated from the child - like img
+  // var movingBubbleHeight = $(movingBubble).outerHeight(true);
+  console.log(heightDifference);
+  console.log(movingBubbleHeight);
+  if(heightDifference < movingBubbleHeight/2) 
+  {
+      this.bubbleUp(bubble, movingBubbleHeight);
+  }
+  else 
+  {
+      this.bubbleDown(bubble, movingBubbleHeight);
+  }
 };
 
 bubbleBooklet.prototype.alignBubbles = function() {
