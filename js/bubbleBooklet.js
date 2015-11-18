@@ -79,7 +79,7 @@ bubbleBooklet.prototype.bubbleDown = function(bubble, neighbour) {
     //append p
     // if(index == 0)
     // {
-    //   $(childBubble).html('<p>');
+    //   $(childBubble).html;
     // }
 
     var overflow = ($(bubble).position().top) - me.bookletHeight;
