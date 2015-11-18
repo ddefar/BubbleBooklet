@@ -4,11 +4,28 @@ var bubbleBooklet = function (name,config) {
 };
 
 bubbleBooklet.prototype.init = function(name) {
+  var me = this;
   this.name = name;
-  this.bubbleWrapper = document.getElementById("booklet-inner");
-  this.bubbleWrapperHeight = $(this.bubbleWrapper).height();
-  this.makeBubbles(this.bubbleWrapper);
-  //this.alignBubbles();
+  $( document ).ready(function() {
+    me.bubbleWrapper = document.getElementById("booklet-inner");
+    me.booklet = document.getElementById("booklet");
+    me.bubbleWrapperHeight = $(me.bubbleWrapper).height();
+    me.makeBubbles(me.bubbleWrapper);
+    //me.alignBubbles();
+
+    $("#nav").find("#prev").on("click", function() {
+      var top = $(me.bubbleWrapper).position().top;
+      if(top != 0) {
+        top += $(me.booklet).height();
+        $(me.bubbleWrapper).css({'top' : top + 'px'});
+      }
+    });
+    $("#nav").find("#next").on("click", function() {
+      var top = $(me.bubbleWrapper).position().top - $(me.booklet).height();
+      if(me.bubbleWrapperHeight > -1*top)
+        $(me.bubbleWrapper).css({'top' : top + 'px'});
+    });
+  });
 };
 
 bubbleBooklet.prototype.announce = function() {
@@ -78,18 +95,6 @@ bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
 
 };
 
-<<<<<<< HEAD
-bubbleBooklet.prototype.bubbleUp = function(bubble) {
-  var neighbour = $(bubble).prev('span')[0];
-  console.debug('bubbleUp ',neighbour);
-  this.swapElements(neighbour, bubble);
-};
-
-bubbleBooklet.prototype.bubbleDown = function(bubble) {
-  var neighbour = $(bubble).next('span')[0];
-  console.debug('bubbleDown', neighbour);
-  this.swapElements(bubble, neighbour);
-=======
 bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
   var neighbour = bubble.previousSibling;
   if(neighbour)
@@ -129,7 +134,6 @@ bubbleBooklet.prototype.findMovingBubblePosition = function(neighbour, bubbleHei
   })
 
   this.appendMovingBubble(bubble, newParagraph);
->>>>>>> 63b2ec6b979a0401ee48194b6ef46db5a7747e5d
 };
 
 bubbleBooklet.prototype.appendMovingBubble = function(bubble, newParagraph) {
