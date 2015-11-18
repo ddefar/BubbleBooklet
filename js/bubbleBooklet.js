@@ -78,18 +78,18 @@ bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
 
 };
 
-<<<<<<< HEAD
-bubbleBooklet.prototype.bubbleUp = function(bubble) {
-  var neighbour = $(bubble).prev('span')[0];
-  console.debug('bubbleUp ',neighbour);
-  this.swapElements(neighbour, bubble);
-};
 
-bubbleBooklet.prototype.bubbleDown = function(bubble) {
-  var neighbour = $(bubble).next('span')[0];
-  console.debug('bubbleDown', neighbour);
-  this.swapElements(bubble, neighbour);
-=======
+// bubbleBooklet.prototype.bubbleUp = function(bubble) {
+//   var neighbour = $(bubble).prev('span')[0];
+//   console.debug('bubbleUp ',neighbour);
+//   this.swapElements(neighbour, bubble);
+// };
+
+// bubbleBooklet.prototype.bubbleDown = function(bubble) {
+//   var neighbour = $(bubble).next('span')[0];
+//   console.debug('bubbleDown', neighbour);
+//   this.swapElements(bubble, neighbour);
+
 bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
   var neighbour = bubble.previousSibling;
   if(neighbour)
@@ -129,7 +129,6 @@ bubbleBooklet.prototype.findMovingBubblePosition = function(neighbour, bubbleHei
   })
 
   this.appendMovingBubble(bubble, newParagraph);
->>>>>>> 63b2ec6b979a0401ee48194b6ef46db5a7747e5d
 };
 
 bubbleBooklet.prototype.appendMovingBubble = function(bubble, newParagraph) {
