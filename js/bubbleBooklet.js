@@ -10,18 +10,19 @@ bubbleBooklet.prototype.init = function(name) {
     me.bubbleWrapper = document.getElementById("booklet-inner");
     me.booklet = document.getElementById("booklet");
     me.bubbleWrapperHeight = $(me.bubbleWrapper).height();
+    me.bookletHeight = $(me.booklet).height();
     me.makeBubbles(me.bubbleWrapper);
-    //me.alignBubbles();
+    me.alignBubbles();
 
     $("#nav").find("#prev").on("click", function() {
       var top = $(me.bubbleWrapper).position().top;
       if(top != 0) {
-        top += $(me.booklet).height();
+        top += me.bookletHeight;
         $(me.bubbleWrapper).css({'top' : top + 'px'});
       }
     });
     $("#nav").find("#next").on("click", function() {
-      var top = $(me.bubbleWrapper).position().top - $(me.booklet).height();
+      var top = $(me.bubbleWrapper).position().top - me.bookletHeight;
       if(me.bubbleWrapperHeight > -1*top)
         $(me.bubbleWrapper).css({'top' : top + 'px'});
     });
@@ -61,68 +62,12 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
   }
 };
 
-// bubbleBooklet.prototype.measureImageBubble = function(bubble) {
-//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako sporo
-//   var image = $(bubble).children()[0];
-
-//   var height = $(image).outerHeight(true);
-
-//   return height; //return bubble height
-// };
-
-// bubbleBooklet.prototype.measureTextBubble = function(bucket) {
-//   //morat ćemo dopustiti max jedan parent za svaki bubble -> problem izračunati ako  neki div npr. wrappa više djece i jako sporo
-//   bubble = $(bucket).children()[0];
-
-//   console.log(bubble);
-
-//   var height = $(bubble).outerHeight(true);
-
-//   return height; //return bubble height
-// };
-
-bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
-  // console.log($(this.bubbleWrapper).offset().top);
-  // console.log($(bubble).offset().top);
-  var offsetTop = $(bubble).offset().top - $(this.bubbleWrapper).offset().top;
-  var movingBubble = $(bubble).children()[0];//wrapped in span, but its height can only be calculated from the child - like img
-  var movingBubbleHeight = $(movingBubble).outerHeight(true);
-  var bottomOfMovingWrapper = offsetTop + movingBubbleHeight;
-  // console.log(bottomOfMovingWrapper);
-
-  // console.log(bottomOfMovingWrapper);
-  // console.log(bottomOfBubbleWrapper);
-  // console.log($(bubble).offset().top);
-  // console.log($(this.bubbleWrapper).offset().top);
-  if(bottomOfMovingWrapper > this.bubbleWrapperHeight)
-  {
-    var heightDifference = bottomOfMovingWrapper - this.bubbleWrapperHeight;
-
-    this.upOrDown(bubble, heightDifference, movingBubbleHeight);
-  }
-};
-
-// bubbleBooklet.prototype.bubbleUp = function(bubble) {
-//   var neighbour = $(bubble).prev('span')[0];
-//   console.debug('bubbleUp ',neighbour);
-//   this.swapElements(neighbour, bubble);
-// };
-
-// bubbleBooklet.prototype.bubbleDown = function(bubble) {
-//   var neighbour = $(bubble).next('span')[0];
-//   console.debug('bubbleDown', neighbour);
-//   this.swapElements(bubble, neighbour);
-
 bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
   var neighbour = bubble.previousSibling;
   if(neighbour)
   {
-    this.findMovingBubblePosition(neighbour, bubbleHeight, bubble);
+    this.swapElements(neighbour, bubble);
   }
-  console.log("up");
-  //else moving bubble too large for screen
-  //console.debug(neighbour);
-  //this.swapElements(neighbour, bubble);
 };
 
 bubbleBooklet.prototype.bubbleDown = function(bubble, bubbleHeight) {
@@ -130,36 +75,10 @@ bubbleBooklet.prototype.bubbleDown = function(bubble, bubbleHeight) {
   console.log(neighbour);
   if(neighbour)
   {
-    this.findMovingBubblePosition(neighbour, bubbleHeight, bubble);
+    this.swapElements(bubble, neighbour);
   }
   console.log("down");
-  //else image is alone on the next page -> call bubble Up?
 };
-
-bubbleBooklet.prototype.findMovingBubblePosition = function(neighbour, bubbleHeight, bubble) {
-
-  var textHeight = this.bubbleWrapperHeight - bubbleHeight;
-  var newParagraph = document.createElement('p');
-  $(newParagraph).addClass("new");
-
-  [].reverse.call($(neighbour).children('span')).each(function(index, textBubble) {
-      $(newParagraph).append(textBubble);
-
-      if($(neighbour).outerHeight(true) < textHeight)
-      {
-        return false;
-      }
-  })
-
-  this.appendMovingBubble(bubble, newParagraph);
-};
-
-bubbleBooklet.prototype.appendMovingBubble = function(bubble, newParagraph) {
-  $(bubble).after(newParagraph);
-  //$(bubble).removeClass('moving-bubble');
-}
-
-//BACKLOG
 
 bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference, movingBubbleHeight) {
   //odluci gura li se bubble Up ili Down
@@ -179,13 +98,27 @@ bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference, movingBubb
 };
 
 bubbleBooklet.prototype.alignBubbles = function() {
-  //poslozi layout po stranicama (vidi dosadasnji throttle)
   var me = this;
   ($(this.bubbleWrapper).find('.moving-bubble')).each(function(index, bubble)
   {
-      me.measureBubbleTopOffset(bubble);
+      console.debug('moving-bubble ', bubble);
+      var overflow = ($(bubble).position().top) - me.bookletHeight;
+      
+      while( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) ) {
+        me.bubbleDown(bubble);
+        overflow = ($(bubble).position().top) - me.bookletHeight;
+        //console.log('overflow: ' + overflow + ', max: ' + (me.measureBubble(bubble) -10));
+      }
   });
 };
+
+bubbleBooklet.prototype.measureBubble = function(bubble) {
+  if(bubble.children && bubble.children.length > 0) {
+    return $(bubble.children[0]).height();//zasad samo da radi za sliku
+  } else {
+    return $(bubble).height();
+  }
+}
 
 bubbleBooklet.prototype.swapElements = function(obj1, obj2) {
     //console.debug("obj1", obj1);
@@ -194,31 +127,3 @@ bubbleBooklet.prototype.swapElements = function(obj1, obj2) {
     ? obj1.parentNode.insertBefore(obj2, obj1.nextSibling)
     : obj1.parentNode.insertBefore(obj2, obj1); 
 }
-
-// bubbleBooklet.prototype.getNextBubbleSibling = function(bubble) {
-//   var nextSibling = bubble.nextSibling;
-//   if(!nextSibling)
-//   {
-//     nextSibling = $(bubble).parent().next('p').children()[0];
-//     nextSibling = $(nextSibling)[0];
-
-
-//   }
-//   return nextSibling;
-// }
-
-// bubbleBooklet.prototype.getPreviousBubbleSibling = function(bubble) {
-//   var previousSibling = bubble.previousSibling;
-
-//   if(!previousSibling)
-//   {
-//     previousSiblingParent = $(bubble).parent().next('p');
-//     var length = $(previousSiblingParent).length;
-//     previousSibling = $(previousSiblingParent).children()[length-1];
-//     previousSibling = $(previousSibling)[0];
-
-//     console.log(previousSibling);
-//   }
-
-//   return previousSibling;
-// }
