@@ -70,14 +70,36 @@ bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
   }
 };
 
-bubbleBooklet.prototype.bubbleDown = function(bubble, bubbleHeight) {
-  var neighbour = bubble.nextSibling;
-  console.log(neighbour);
-  if(neighbour)
+bubbleBooklet.prototype.bubbleDown = function(bubble, neighbour) {
+  var me = this;
+
+  $(neighbour).children('span').each(function(index, childBubble)
   {
-    this.swapElements(bubble, neighbour);
+    me.swapElements(bubble, childBubble);
+    //append p
+    // if(index == 0)
+    // {
+    //   $(childBubble).html('<p>');
+    // }
+
+    var overflow = ($(bubble).position().top) - me.bookletHeight;
+    if(overflow >= me.measureBubble(bubble))
+    {
+      //do nothing
+      return false;
+    }
+  });
+
+
+  var overflow = ($(bubble).position().top) - this.bookletHeight;
+  if( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) )
+  {
+      neighbour = neighbour.nextSibling;
+      if(neighbour)
+      {
+        this.bubbleDown(bubble, neighbour);
+      }
   }
-  console.log("down");
 };
 
 bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference, movingBubbleHeight) {
@@ -102,13 +124,19 @@ bubbleBooklet.prototype.alignBubbles = function() {
   ($(this.bubbleWrapper).find('.moving-bubble')).each(function(index, bubble)
   {
       console.debug('moving-bubble ', bubble);
-      var overflow = ($(bubble).position().top) - me.bookletHeight;
-      
-      while( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) ) {
-        me.bubbleDown(bubble);
-        overflow = ($(bubble).position().top) - me.bookletHeight;
-        //console.log('overflow: ' + overflow + ', max: ' + (me.measureBubble(bubble) -10));
+      var neighbour = bubble.nextSibling;
+      if(neighbour)
+      {
+        me.bubbleDown(bubble, neighbour);
       }
+
+      // var overflow = ($(bubble).position().top) - me.bookletHeight;
+      
+      // while( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) ) {
+      //   me.bubbleDown(bubble);
+      //   overflow = ($(bubble).position().top) - me.bookletHeight;
+      //   //console.log('overflow: ' + overflow + ', max: ' + (me.measureBubble(bubble) -10));
+      // }
   });
 };
 
