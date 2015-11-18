@@ -4,11 +4,28 @@ var bubbleBooklet = function (name,config) {
 };
 
 bubbleBooklet.prototype.init = function(name) {
+  var me = this;
   this.name = name;
-  this.bubbleWrapper = document.getElementById("booklet-inner");
-  this.bubbleWrapperHeight = $(this.bubbleWrapper).height();
-  this.makeBubbles(this.bubbleWrapper);
-  //this.alignBubbles();
+  $( document ).ready(function() {
+    me.bubbleWrapper = document.getElementById("booklet-inner");
+    me.booklet = document.getElementById("booklet");
+    me.bubbleWrapperHeight = $(me.bubbleWrapper).height();
+    me.makeBubbles(me.bubbleWrapper);
+    //me.alignBubbles();
+
+    $("#nav").find("#prev").on("click", function() {
+      var top = $(me.bubbleWrapper).position().top;
+      if(top != 0) {
+        top += $(me.booklet).height();
+        $(me.bubbleWrapper).css({'top' : top + 'px'});
+      }
+    });
+    $("#nav").find("#next").on("click", function() {
+      var top = $(me.bubbleWrapper).position().top - $(me.booklet).height();
+      if(me.bubbleWrapperHeight > -1*top)
+        $(me.bubbleWrapper).css({'top' : top + 'px'});
+    });
+  });
 };
 
 bubbleBooklet.prototype.announce = function() {
@@ -77,7 +94,6 @@ bubbleBooklet.prototype.measureBubbleTopOffset = function(bubble) {
   }
 
 };
-
 
 // bubbleBooklet.prototype.bubbleUp = function(bubble) {
 //   var neighbour = $(bubble).prev('span')[0];
