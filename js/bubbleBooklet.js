@@ -62,7 +62,30 @@ bubbleBooklet.prototype.blowBubble = function(bucket) {
   }
 };
 
-bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
+bubbleBooklet.prototype.previousBubble = function(bubble) {
+  var _bubble = $(bubble),
+      prev = _bubble.prev();
+
+  if(prev.not('span')) {
+    prev = (prev.find('span')) ? (prev.find('span')[0]) : prev;
+  }
+  return prev;
+}
+
+bubbleBooklet.prototype.nextBubble = function(bubble) {
+  var _bubble = $(bubble),
+      next = _bubble.next();
+
+  if(next.not('span')) {
+    
+    next = (next.find('span')) ? (next.find('span')[0]) : next;
+    
+  }
+  console.debug('next Bubble ', next);
+  return next;
+}
+
+bubbleBooklet.prototype.bubbleUp = function(bubble) {
   var neighbour = bubble.previousSibling;
   if(neighbour)
   {
@@ -70,14 +93,14 @@ bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
   }
 };
 
-bubbleBooklet.prototype.bubbleDown = function(bubble, bubbleHeight) {
-  var neighbour = bubble.nextSibling;
-  console.log(neighbour);
-  if(neighbour)
+bubbleBooklet.prototype.bubbleDown = function(bubble) {
+  var neighbour = this.nextBubble(bubble);
+  if(typeof neighbour !== "undefined")
   {
     this.swapElements(bubble, neighbour);
+    return true;
   }
-  console.log("down");
+  return false;
 };
 
 bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference, movingBubbleHeight) {
@@ -105,9 +128,11 @@ bubbleBooklet.prototype.alignBubbles = function() {
       var overflow = ($(bubble).position().top) - me.bookletHeight;
       
       while( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) ) {
-        me.bubbleDown(bubble);
-        overflow = ($(bubble).position().top) - me.bookletHeight;
-        //console.log('overflow: ' + overflow + ', max: ' + (me.measureBubble(bubble) -10));
+        if(me.bubbleDown(bubble)) {
+          overflow = ($(bubble).position().top) - me.bookletHeight;
+        } else {
+          break;
+        }
       }
   });
 };
@@ -121,8 +146,8 @@ bubbleBooklet.prototype.measureBubble = function(bubble) {
 }
 
 bubbleBooklet.prototype.swapElements = function(obj1, obj2) {
-    //console.debug("obj1", obj1);
-    //console.debug("obj2", obj2);
+    console.debug("obj1", obj1);
+    console.debug("obj2", obj2);
     obj2.nextSibling === obj1
     ? obj1.parentNode.insertBefore(obj2, obj1.nextSibling)
     : obj1.parentNode.insertBefore(obj2, obj1); 
