@@ -12,7 +12,7 @@ bubbleBooklet.prototype.init = function(name) {
     me.bubbleWrapperHeight = $(me.bubbleWrapper).height();
     me.bookletHeight = $(me.booklet).height();
     me.makeBubbles(me.bubbleWrapper);
-    me.alignBubbles();
+    me.alignBubbles($(me.bubbleWrapper));
 
     $("#nav").find("#prev").on("click", function() {
       var top = $(me.bubbleWrapper).position().top;
@@ -93,11 +93,23 @@ bubbleBooklet.prototype.bubbleUp = function(bubble) {
   }
 };
 
+// bubbleBooklet.prototype.bubbleDown = function(bubble) {
+//   var neighbour = this.nextBubble(bubble);
+//   if(typeof neighbour !== "undefined")
+//   {
+//     this.swapElements(bubble, neighbour);
+//     return true;
+//   }
+//   return false;
+// };
+
 bubbleBooklet.prototype.bubbleDown = function(bubble) {
-  var neighbour = this.nextBubble(bubble);
+  var neighbour = $(bubble).next();
   if(typeof neighbour !== "undefined")
   {
-    this.swapElements(bubble, neighbour);
+    this.swapElements(bubble, neighbour[0]);
+    if(typeof neighbour !== "span")
+      this.alignBubbles(neighbour);
     return true;
   }
   return false;
@@ -120,11 +132,11 @@ bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference, movingBubb
   }
 };
 
-bubbleBooklet.prototype.alignBubbles = function() {
+bubbleBooklet.prototype.alignBubbles = function(bucket) {
   var me = this;
-  ($(this.bubbleWrapper).find('.moving-bubble')).each(function(index, bubble)
+  bucket.find('.moving-bubble').each(function(index, bubble)
   {
-      console.debug('moving-bubble ', bubble);
+      //console.debug('moving-bubble ', bubble);
       var overflow = ($(bubble).position().top) - me.bookletHeight;
       
       while( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) ) {
@@ -134,6 +146,13 @@ bubbleBooklet.prototype.alignBubbles = function() {
           break;
         }
       }
+      // while( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) ) {
+      //   if(me.bubbleDown(bubble)) {
+      //     overflow = ($(bubble).position().top) - me.bookletHeight;
+      //   } else {
+      //     break;
+      //   }
+      // }
   });
 };
 
