@@ -34,6 +34,7 @@ bubbleBooklet.prototype.announce = function() {
 };
 
 bubbleBooklet.prototype.makeBubbles = function(bucket) {
+  //postavi config listu selectora sto ide u bubble (atomi)
   var me  = this;
   if (bucket.children && bucket.children.length > 0) {
     [].forEach.call(bucket.children,function(child) {
