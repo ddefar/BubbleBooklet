@@ -66,44 +66,87 @@ bubbleBooklet.prototype.bubbleUp = function(bubble, bubbleHeight) {
   var neighbour = bubble.previousSibling;
   if(neighbour)
   {
-    this.swapElements(neighbour, bubble);
+    this.moveBubblesUpToFitBookletWrapper(neighbour, bubble);
   }
 };
 
 bubbleBooklet.prototype.bubbleDown = function(bubble, neighbour) {
-  var me = this;
-
-  $(neighbour).children('span').each(function(index, childBubble)
+  var neighbour = bubble.nextSibling;
+  if(neighbour)
   {
-    me.swapElements(bubble, childBubble);
-    
-    var overflow = ($(bubble).position().top) - me.bookletHeight;
-    if(overflow > me.measureBubble(bubble))
-    {
-      //do nothing
-      return false;
-    }
-  });
-
-
-  var overflow = ($(bubble).position().top) - this.bookletHeight;
-  if( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) )
-  {
-      neighbour = neighbour.nextSibling;
-      if(neighbour)
-      {
-        this.bubbleDown(bubble, neighbour);
-      }
+    this.moveBubblesDownToFitBookletWrapper(neighbour, bubble);
   }
 };
 
+
+bubbleBooklet.prototype.moveBubblesUpToFitBookletWrapper = function(neighbour, bubble) {
+
+  var spaceFromNeighbourTop = this.bookletHeight - neighbour.offsetTop - this.bubbleWrapper.offsetTop;
+  var textHeight = spaceFromNeighbourTop - this.measureBubble(bubble);
+  var newParagraph = document.createElement($(neighbour).get(0).tagName.toLowerCase());
+
+
+  [].reverse.call($(neighbour).children('span')).each(function(index, textBubble) {
+      $(newParagraph).prepend(textBubble);
+      if($(neighbour).outerHeight(true) < textHeight)
+      {
+        return false;
+      }
+  });
+
+  $(bubble).after(newParagraph);
+
+  if(!this.checkIfBubbleFitsOnTheScreen(bubble))
+  {
+    neighbour = neighbour.previousSibling;
+    if(neighbour)
+    {
+      this.moveBubblesToFitBookletWrapper(neighbour, bubble);
+    }
+  }
+};
+
+bubbleBooklet.prototype.moveBubblesDownToFitBookletWrapper = function(neighbour, bubble) {
+
+  var spaceFromBubbleTop = this.bookletHeight - bubble.offsetTop - this.bubbleWrapper.offsetTop;
+  var textHeight = $(neighbour).outerHeight(true) - spaceFromBubbleTop;
+  var newParagraph = document.createElement($(neighbour).get(0).tagName.toLowerCase());
+
+  $(neighbour).children('span').each(function(index, textBubble) {
+      $(newParagraph).append(textBubble);
+
+      if($(neighbour).outerHeight(true) < textHeight)
+      {
+        return false;
+      }
+  })
+
+  $(bubble).before(newParagraph);
+
+  if(!this.checkIfBubbleFitsOnTheScreen(bubble))
+  {
+    neighbour = neighbour.nextSibling;
+    if(neighbour)
+    {
+      this.moveBubblesToFitBookletWrapper(neighbour, bubble);
+    }
+  }
+};
+
+
+bubbleBooklet.prototype.checkIfBubbleFitsOnTheScreen = function(bubble)
+{
+    var overflow = ($(bubble).position().top) - this.bookletHeight;
+  
+    if( ( overflow > 0 ) && ( overflow < this.measureBubble(bubble) ) )
+    {
+      return false;
+    }
+    return true;
+}
+
 bubbleBooklet.prototype.upOrDown = function(bubble, heightDifference, movingBubbleHeight) {
   //odluci gura li se bubble Up ili Down
-  //console.log("height:" + bubble + ":" + $(bubble).outerHeight(true));
-  // var movingBubble = $(bubble).children()[0];//wrapped in span, but its height can only be calculated from the child - like img
-  // var movingBubbleHeight = $(movingBubble).outerHeight(true);
-  console.log(heightDifference);
-  console.log(movingBubbleHeight);
   if(heightDifference < movingBubbleHeight/2) 
   {
       this.bubbleUp(bubble, movingBubbleHeight);
@@ -118,20 +161,10 @@ bubbleBooklet.prototype.alignBubbles = function() {
   var me = this;
   ($(this.bubbleWrapper).find('.moving-bubble')).each(function(index, bubble)
   {
-      console.debug('moving-bubble ', bubble);
-      var neighbour = bubble.nextSibling;
-      if(neighbour)
+      if(!me.checkIfBubbleFitsOnTheScreen(bubble))
       {
-        me.bubbleDown(bubble, neighbour);
+        me.bubbleUp(bubble, me.measureBubble(bubble));
       }
-
-      // var overflow = ($(bubble).position().top) - me.bookletHeight;
-      
-      // while( ( overflow > 0 ) && ( overflow < me.measureBubble(bubble) ) ) {
-      //   me.bubbleDown(bubble);
-      //   overflow = ($(bubble).position().top) - me.bookletHeight;
-      //   //console.log('overflow: ' + overflow + ', max: ' + (me.measureBubble(bubble) -10));
-      // }
   });
 };
 
@@ -144,8 +177,6 @@ bubbleBooklet.prototype.measureBubble = function(bubble) {
 }
 
 bubbleBooklet.prototype.swapElements = function(obj1, obj2) {
-    //console.debug("obj1", obj1);
-    //console.debug("obj2", obj2);
     obj2.nextSibling === obj1
     ? obj1.parentNode.insertBefore(obj2, obj1.nextSibling)
     : obj1.parentNode.insertBefore(obj2, obj1); 
