@@ -76,12 +76,7 @@ bubbleBooklet.prototype.bubbleDown = function(bubble, neighbour) {
   $(neighbour).children('span').each(function(index, childBubble)
   {
     me.swapElements(bubble, childBubble);
-    //append p
-    // if(index == 0)
-    // {
-    //   $(childBubble).html;
-    // }
-
+    
     var overflow = ($(bubble).position().top) - me.bookletHeight;
     if(overflow > me.measureBubble(bubble))
     {
